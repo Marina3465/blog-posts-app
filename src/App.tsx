@@ -1,7 +1,14 @@
+import { Header } from "./Header";
+
 interface AppProps {
   title?: string;
 }
 
 export default function App({ title = "Привет, TypeScript!" }: AppProps) {
-  return <h1>{title}</h1>;
+  return (
+    <>
+      <Header />
+      <h1>{title}</h1>
+    </>
+  );
 }

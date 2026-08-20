@@ -1,3 +1,4 @@
+import "./index.css"; // Добавьте эту строчку
 import { createRoot } from "react-dom/client";
 import App from "./App";
 
