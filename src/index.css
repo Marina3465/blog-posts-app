@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+:root {
+  --color-orange: #ff512f;
+  --color-rose: #dd2476;
+}
+
+body {
+  background-color: #f6f7f9;
+  color: #1a1a1a;
+}

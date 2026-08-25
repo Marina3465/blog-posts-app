@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 150" width="100%" height="100%">
+  <defs>
+    <!-- Градиент для фона значка -->
+    <linearGradient id="gradPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF512F" />
+      <stop offset="100%" stop-color="#DD2476" />
+    </linearGradient>
+    <!-- Тень для объема -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- ЛОГОТИП (ЗНАЧОК) -->
+  <g transform="translate(10, 0)">
+    <!-- Облако комментариев (Задний план) -->
+    <path d="M 45 35 
+             C 25 35, 15 50, 15 70 
+             C 15 85, 25 98, 40 103 
+             L 35 120 
+             L 55 105 
+             C 90 110, 105 85, 95 65" 
+          fill="none" 
+          stroke="#4A0E4E" 
+          stroke-width="7" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"
+          opacity="0.85" />
+
+    <!-- Плашка Поста/Статьи (Передний план) -->
+    <rect x="55" y="25" width="70" height="90" rx="14" 
+          fill="url(#gradPrimary)" 
+          filter="url(#shadow)" />
+
+    <!-- Текстовые строки (Имитация поста) -->
+    <line x1="70" y1="45" x2="110" y2="45" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+    <line x1="70" y1="57" x2="100" y2="57" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+
+    <!-- Лайк (Сердечко внизу поста) -->
+    <path d="M 90 82 
+             C 90 77, 83 75, 80 80 
+             C 77 75, 70 77, 70 82 
+             C 70 90, 80 96, 80 96 
+             C 80 96, 90 90, 90 82 Z" 
+          fill="#FFFFFF" />
+  </g>
+
+  <!-- ТЕКСТОВОЕ НАЗВАНИЕ
+  <g transform="translate(150, 88)">
+    <text font-family="System-UI, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-size="46" 
+          font-weight="800" 
+          fill="#1A1A1A" 
+          letter-spacing="-1">
+      Post<tspan fill="url(#gradPrimary)">&amp;</tspan>Pulse
+    </text>
+    <text x="2" y="25" 
+          font-family="System-UI, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-size="14" 
+          font-weight="600" 
+          fill="#767676" 
+          letter-spacing="3">
+      BLOG &amp; COMMUNITY
+    </text>
+  </g> -->
+</svg>
