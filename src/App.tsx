@@ -1,14 +1,13 @@
+import { Blog } from "./blog/Blog";
 import { Header } from "./Header";
 
-interface AppProps {
-  title?: string;
-}
-
-export default function App({ title = "Привет, TypeScript!" }: AppProps) {
+export default function App() {
   return (
     <>
       <Header />
-      <h1>{title}</h1>
+      <main className="p-10">
+        <Blog />
+      </main>
     </>
   );
 }
