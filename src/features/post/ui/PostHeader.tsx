@@ -1,4 +1,4 @@
-import { Verification } from "../../../shared/icons/Verification";
+import { Verification } from "@shared/icons";
 
 export const PostHeader = () => {
   return (

@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { CommentIcon } from "../../../shared/icons/CommentIcon";
-import { HeartIcon } from "../../../shared/icons/HeastIcon";
-import { ShareIcon } from "../../../shared/icons/ShareIcon";
-import { IconButton } from "../../../shared/ui/IconButton";
-import { cn } from "../../../utils/cn";
+import { cn } from "@/utils/cn";
+import { IconButton } from "@shared/ui/IconButton";
+import { CommentIcon, HeartIcon, ShareIcon } from "@shared/icons";
 
 const INITIAL_LIKES = 241;
 
