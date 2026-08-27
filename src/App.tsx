@@ -1,4 +1,4 @@
-import { Blog } from "./blog/Blog";
+import { Blog } from "./features/blog/Blog";
 import { Header } from "./Header";
 
 export default function App() {
