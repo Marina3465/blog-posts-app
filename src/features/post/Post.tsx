@@ -3,7 +3,7 @@ import { PostHeader } from "./ui/PostHeader";
 
 export const Post = () => {
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 p-6.5 pl-6 pb-2.5">
+    <div className="bg-white rounded-3xl border border-gray-200 shadow-xs p-6.5 pl-6 pb-2.5">
       <PostHeader />
       <div className="text-base/relaxed my-2">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo alias
