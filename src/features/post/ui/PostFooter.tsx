@@ -7,7 +7,7 @@ import { cn } from "../../../utils/cn";
 
 const INITIAL_LIKES = 241;
 
-export const BlogFooter = () => {
+export const PostFooter = () => {
   const [isLike, setIsLike] = useState(false);
   const [isOpenComments, setIsOpenComments] = useState(false);
 

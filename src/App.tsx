@@ -1,4 +1,4 @@
-import { Blog } from "./features/blog/Blog";
+import { Post } from "./features/post/Post";
 import { Header } from "./Header";
 
 export default function App() {
@@ -6,7 +6,7 @@ export default function App() {
     <>
       <Header />
       <main className="p-10">
-        <Blog />
+        <Post />
       </main>
     </>
   );

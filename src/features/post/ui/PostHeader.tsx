@@ -1,6 +1,6 @@
 import { Verification } from "../../../shared/icons/Verification";
 
-export const BlogHeader = () => {
+export const PostHeader = () => {
   return (
     <div className="flex">
       <div className="w-fit rounded-full p-3 bg-rose-200 text-rose-500 font-bold">
