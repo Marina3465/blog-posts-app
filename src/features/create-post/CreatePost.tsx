@@ -4,8 +4,13 @@ import { IconButton } from "@/shared/ui/IconButton";
 import { PaperClipIcon } from "@/shared/icons/PaperClipIcon";
 import { ArrowUpIcon } from "@/shared/icons/ArrowUpIcon";
 import { CrossIcon } from "@/shared/icons/CrossIcon";
+import { CreatePostParams } from "@/shared/types";
 
-export const CreatePost = () => {
+type Props = {
+  createPost: (newPost: CreatePostParams) => void;
+};
+
+export const CreatePost = ({ createPost }: Props) => {
   const [isOpenCreateForm, setIsOpenCreateForm] = useState(false);
   const [postText, setPostText] = useState("");
 
@@ -27,6 +32,17 @@ export const CreatePost = () => {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
+  };
+
+  const handleSubmit = () => {
+    createPost({
+      author: "Marina",
+      userTag: "@marinakv",
+      text: postText,
+      dateOfCreation: new Date(),
+    });
+
+    handleCloseForm();
   };
 
   if (!isOpenCreateForm) return <CreatePostButton onClick={handleOpenForm} />;
@@ -58,6 +74,7 @@ export const CreatePost = () => {
         <IconButton
           icon={<ArrowUpIcon className="rotate-45 size-4" strokeWidth={"3"} />}
           className="bg-orange-500 text-white px-3 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/30"
+          onClick={handleSubmit}
         >
           Publish
         </IconButton>

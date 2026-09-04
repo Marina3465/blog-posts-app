@@ -3,9 +3,12 @@ import { cn } from "@/utils/cn";
 import { IconButton } from "@shared/ui/IconButton";
 import { CommentIcon, HeartIcon, ShareIcon } from "@shared/icons";
 
-const INITIAL_LIKES = 241;
+type Props = {
+  likes: number;
+  comments: number;
+};
 
-export const PostFooter = () => {
+export const PostFooter = ({ likes, comments }: Props) => {
   const [isLike, setIsLike] = useState(false);
   const [isOpenComments, setIsOpenComments] = useState(false);
 
@@ -17,7 +20,7 @@ export const PostFooter = () => {
     setIsOpenComments((prev) => !prev);
   };
 
-  const likeCounter = isLike ? INITIAL_LIKES + 1 : INITIAL_LIKES;
+  const likeCounter = isLike ? likes + 1 : likes;
 
   return (
     <div>
@@ -43,12 +46,10 @@ export const PostFooter = () => {
           onClick={handleCommentClick}
           className={cn(isOpenComments && "bg-gray-100")}
         >
-          <span className="font-medium text-gray-500">18 comments</span>
+          <span className="font-medium text-gray-500">{comments} comments</span>
         </IconButton>
 
-        <IconButton
-          icon={<ShareIcon className="size-5 text-gray-500" filled />}
-        >
+        <IconButton icon={<ShareIcon className="size-5 text-gray-500" />}>
           <span className="font-medium text-gray-500">Share</span>
         </IconButton>
       </div>
