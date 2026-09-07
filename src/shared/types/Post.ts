@@ -6,6 +6,8 @@ export type Post = {
   likes: number;
   comments: number;
   dateOfCreation: string;
+  likesCount: number;
+  isLikedByMe: boolean;
 };
 
 export type CreatePostParams = {

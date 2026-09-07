@@ -7,7 +7,16 @@ type Props = {
 };
 
 export const PostCard = ({ post }: Props) => {
-  const { author, text, likes, comments, userTag, dateOfCreation } = post;
+  const {
+    id,
+    author,
+    text,
+    comments,
+    userTag,
+    dateOfCreation,
+    isLikedByMe,
+    likesCount,
+  } = post;
 
   return (
     <div className="bg-white rounded-3xl border border-gray-200 shadow-xs p-6.5 pl-6 pb-2.5">
@@ -17,7 +26,12 @@ export const PostCard = ({ post }: Props) => {
         dateOfCreation={dateOfCreation}
       />
       <div className="text-base/relaxed my-2">{text}</div>
-      <PostFooter likes={likes} comments={comments} />
+      <PostFooter
+        postId={id}
+        isLikedByMe={isLikedByMe}
+        likesCount={likesCount}
+        comments={comments}
+      />
     </div>
   );
 };

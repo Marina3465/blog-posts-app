@@ -11,12 +11,29 @@ datasource db {
   provider = "sqlite"
 }
 
+model User {
+  id      Int    @id @default(autoincrement())
+  name    String
+  userTag String @unique
+  likes   Like[]
+}
+
 model Post {
   id             Int      @id @default(autoincrement())
   author         String
   userTag        String
   text           String
-  likes          Int      @default(0)
   comments       Int      @default(0)
   dateOfCreation DateTime @default(now())
+  likes          Like[]
+}
+
+model Like {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  postId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId]) // Один пользователь может лайкнуть пост только 1 раз
 }
