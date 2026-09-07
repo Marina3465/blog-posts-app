@@ -5,12 +5,12 @@ export type Post = {
   text: string;
   likes: number;
   comments: number;
-  dateOfCreation: Date;
+  dateOfCreation: string;
 };
 
 export type CreatePostParams = {
   author: string;
   userTag: string;
   text: string;
-  dateOfCreation: Date;
+  dateOfCreation: string;
 };

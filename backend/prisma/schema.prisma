@@ -1,0 +1,22 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Post {
+  id             Int      @id @default(autoincrement())
+  author         String
+  userTag        String
+  text           String
+  likes          Int      @default(0)
+  comments       Int      @default(0)
+  dateOfCreation DateTime @default(now())
+}

@@ -5,7 +5,7 @@ import isYesterday from "dayjs/plugin/isYesterday";
 dayjs.extend(relativeTime);
 dayjs.extend(isYesterday);
 
-export function formatPostDate(dateOfCreation: Date): string {
+export function formatPostDate(dateOfCreation: string): string {
   const postDate = dayjs(dateOfCreation);
   const now = dayjs();
 

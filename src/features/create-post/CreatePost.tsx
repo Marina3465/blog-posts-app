@@ -39,7 +39,7 @@ export const CreatePost = ({ createPost }: Props) => {
       author: "Marina",
       userTag: "@marinakv",
       text: postText,
-      dateOfCreation: new Date(),
+      dateOfCreation: String(new Date()),
     });
 
     handleCloseForm();

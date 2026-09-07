@@ -7,7 +7,7 @@ import { formatPostDate } from "@/shared/utils/formatPostDate";
 type Props = {
   author: string;
   userTag: string;
-  dateOfCreation: Date;
+  dateOfCreation: string;
 };
 
 dayjs.extend(relativeTime);
