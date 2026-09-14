@@ -1,4 +1,4 @@
-import { startTransition, useOptimistic, useState } from "react";
+import { useState } from "react";
 import { cn } from "@/utils/cn";
 import { IconButton } from "@shared/ui/IconButton";
 import { CommentIcon, HeartIcon, ShareIcon } from "@shared/icons";
@@ -20,25 +20,9 @@ export const PostFooter = ({
   const [isOpenComments, setIsOpenComments] = useState(false);
   const toggleLike = usePost((state) => state.toggleLike);
 
-  const [{ countOfLikes, isLiked }, setOptimisticState] = useOptimistic(
-    { countOfLikes: likesCount, isLiked: isLikedByMe },
-    (current) => ({
-      countOfLikes: current.isLiked
-        ? current.countOfLikes - 1
-        : current.countOfLikes + 1,
-      isLiked: !current.isLiked,
-    }),
-  );
-
   const handleLikeClick = () => {
-    startTransition(async () => {
-      setOptimisticState(null);
-
-      try {
-        await toggleLike(postId);
-      } catch (error) {
-        console.error("Ошибка при постановке лайка:", error);
-      }
+    toggleLike(postId).catch((error) => {
+      console.error("Ошибка при постановке лайка:", error);
     });
   };
 
@@ -51,17 +35,19 @@ export const PostFooter = ({
       <hr className="w-full h-px bg-gray-200 border-none my-2" />
       <div className="flex gap-3">
         <IconButton
-          icon={<HeartIcon className="size-5 text-rose-500" filled={isLiked} />}
-          className={cn("rounded-full py-1 px-2", isLiked && "bg-rose-100")}
+          icon={
+            <HeartIcon className="size-5 text-rose-500" filled={isLikedByMe} />
+          }
+          className={cn("rounded-full py-1 px-2", isLikedByMe && "bg-rose-100")}
           onClick={handleLikeClick}
         >
           <span
             className={cn(
               "font-medium",
-              isLiked ? "text-rose-500" : "text-gray-500",
+              isLikedByMe ? "text-rose-500" : "text-gray-500",
             )}
           >
-            {countOfLikes}
+            {likesCount}
           </span>
         </IconButton>
 

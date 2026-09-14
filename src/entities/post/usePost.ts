@@ -1,3 +1,4 @@
+import { coreInstance } from "@/shared/api";
 import { CreatePostParams, Post } from "@/shared/types";
 import { create } from "zustand";
 
@@ -10,9 +11,6 @@ type Store = {
   toggleLike: (id: number) => Promise<void>;
 };
 
-const API_URL = "http://localhost:5000/posts";
-const CURRENT_USER_ID = "1";
-
 export const usePost = create<Store>()((set) => ({
   posts: [],
   isLoading: false,
@@ -21,13 +19,9 @@ export const usePost = create<Store>()((set) => ({
   getPosts: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(API_URL, {
-        headers: { "x-user-id": CURRENT_USER_ID },
-      });
-      if (!response.ok) throw new Error("Не удалось загрузить посты");
+      const response = await coreInstance.get<Post[]>("/posts");
 
-      const posts: Post[] = await response.json();
-      set({ posts, isLoading: false });
+      set({ posts: response.data, isLoading: false });
     } catch (err) {
       set({
         error: err instanceof Error ? err.message : "Ошибка загрузки",
@@ -40,49 +34,57 @@ export const usePost = create<Store>()((set) => ({
     if (!postData.text.trim()) return;
 
     try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": CURRENT_USER_ID,
-        },
-        body: JSON.stringify({
-          author: postData.author || "Marina",
-          userTag: postData.userTag || "@marinakv",
-          text: postData.text,
-        }),
+      const response = await coreInstance.post<Post>("/posts", {
+        author: postData.author || "Marina",
+        userTag: postData.userTag || "@marinakv",
+        text: postData.text,
       });
 
-      if (!response.ok) throw new Error("Не удалось создать пост");
-
-      const newPost: Post = await response.json();
-      set((state) => ({ posts: [newPost, ...state.posts] }));
+      set((state) => ({ posts: [response.data, ...state.posts] }));
     } catch (err) {
       console.error("Ошибка при создании поста:", err);
     }
   },
 
   toggleLike: async (id: number) => {
-    const response = await fetch(`${API_URL}/${id}/like`, {
-      method: "POST",
-      headers: { "x-user-id": CURRENT_USER_ID },
+    const toggleLikeLocally = (post: Post): Post => ({
+      ...post,
+      likesCount: post.isLikedByMe ? post.likesCount - 1 : post.likesCount + 1,
+      isLikedByMe: !post.isLikedByMe,
     });
-
-    if (!response.ok) throw new Error("Не удалось обновить лайк");
-
-    const data: { postId: number; likesCount: number; isLikedByMe: boolean } =
-      await response.json();
 
     set((state) => ({
       posts: state.posts.map((post) =>
-        post.id === id
-          ? {
-              ...post,
-              likesCount: data.likesCount,
-              isLikedByMe: data.isLikedByMe,
-            }
-          : post,
+        post.id === id ? toggleLikeLocally(post) : post,
       ),
     }));
+
+    try {
+      const response = await coreInstance.post<{
+        postId: number;
+        likesCount: number;
+        isLikedByMe: boolean;
+      }>(`/posts/${id}/like`);
+
+      set((state) => ({
+        posts: state.posts.map((post) =>
+          post.id === id
+            ? {
+                ...post,
+                likesCount: response.data.likesCount,
+                isLikedByMe: response.data.isLikedByMe,
+              }
+            : post,
+        ),
+      }));
+    } catch (err) {
+      // Откатываем оптимистичное обновление, если запрос не удался
+      set((state) => ({
+        posts: state.posts.map((post) =>
+          post.id === id ? toggleLikeLocally(post) : post,
+        ),
+      }));
+      throw err;
+    }
   },
 }));
