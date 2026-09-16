@@ -22,7 +22,11 @@ export default function App() {
         <CreatePost createPost={createPost} />
         <div className="grid gap-4">
           {posts.map((post: Post) => (
-            <PostCard key={post.id} post={post} />
+            <div key={post.id} className="grid animate-post-appear">
+              <div className="overflow-hidden">
+                <PostCard post={post} />
+              </div>
+            </div>
           ))}
         </div>
       </main>

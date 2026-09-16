@@ -1,4 +1,5 @@
 import { ChangeEvent, useRef, useState } from "react";
+import { cn } from "@/utils/cn";
 import { CreatePostButton } from "./ui/CreatePostButton";
 import { IconButton } from "@/shared/ui/IconButton";
 import { PaperClipIcon } from "@/shared/icons/PaperClipIcon";
@@ -45,39 +46,66 @@ export const CreatePost = ({ createPost }: Props) => {
     handleCloseForm();
   };
 
-  if (!isOpenCreateForm) return <CreatePostButton onClick={handleOpenForm} />;
-
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 shadow-xs mb-5">
-      <div className="py-3 px-4.5 border-b border-gray-200 flex items-center justify-between">
-        <span className="font-semibold">New post</span>
-        <IconButton
-          icon={<CrossIcon className="font-normal size-5 text-gray-500" />}
-          onClick={handleCloseForm}
-        ></IconButton>
+    <div className="grid *:col-start-1 *:row-start-1">
+      <div
+        className={cn(
+          "origin-top-right transition-all duration-300 ease-out",
+          isOpenCreateForm && "scale-90 opacity-0",
+        )}
+        inert={isOpenCreateForm}
+      >
+        <CreatePostButton onClick={handleOpenForm} />
       </div>
-      <textarea
-        ref={textareaRef}
-        className="py-3 px-4.5 w-full min-h-20 items-start outline-0 resize-none"
-        placeholder="Write down your thoughts ..."
-        value={postText}
-        onChange={handleInput}
-        rows={1}
-      />
-      <div className="flex justify-between bg-gray-50 py-3 px-4.5 border-t border-gray-200 rounded-b-3xl">
-        <IconButton
-          icon={<PaperClipIcon className="size-4" />}
-          className="border border-gray-300 px-3 font-semibold transition-all duration-300 hover:bg-white hover:shadow-md"
-        >
-          Attach a file
-        </IconButton>
-        <IconButton
-          icon={<ArrowUpIcon className="rotate-45 size-4" strokeWidth={"3"} />}
-          className="bg-orange-500 text-white px-3 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/30"
-          onClick={handleSubmit}
-        >
-          Publish
-        </IconButton>
+
+      <div
+        className={cn(
+          "origin-top-right transition-all duration-300 ease-out",
+          "grid",
+          isOpenCreateForm
+            ? "grid-rows-[1fr]"
+            : "grid-rows-[0fr] scale-90 opacity-0",
+        )}
+        inert={!isOpenCreateForm}
+      >
+        <div className="overflow-hidden">
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-xs mb-5">
+            <div className="py-3 px-4.5 border-b border-gray-200 flex items-center justify-between">
+              <span className="font-semibold">New post</span>
+              <IconButton
+                icon={
+                  <CrossIcon className="font-normal size-5 text-gray-500" />
+                }
+                onClick={handleCloseForm}
+              ></IconButton>
+            </div>
+            <textarea
+              ref={textareaRef}
+              className="py-3 px-4.5 w-full min-h-20 items-start outline-0 resize-none"
+              placeholder="Write down your thoughts ..."
+              value={postText}
+              onChange={handleInput}
+              rows={1}
+            />
+            <div className="flex justify-between bg-gray-50 py-3 px-4.5 border-t border-gray-200 rounded-b-3xl">
+              <IconButton
+                icon={<PaperClipIcon className="size-4" />}
+                className="border border-gray-300 px-3 font-semibold transition-all duration-300 hover:bg-white hover:shadow-md"
+              >
+                Attach a file
+              </IconButton>
+              <IconButton
+                icon={
+                  <ArrowUpIcon className="rotate-45 size-4" strokeWidth={"3"} />
+                }
+                className="bg-orange-500 text-white px-3 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/30"
+                onClick={handleSubmit}
+              >
+                Publish
+              </IconButton>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
