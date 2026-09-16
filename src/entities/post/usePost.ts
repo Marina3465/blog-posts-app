@@ -24,7 +24,7 @@ export const usePost = create<Store>()((set) => ({
       set({ posts: response.data, isLoading: false });
     } catch (err) {
       set({
-        error: err instanceof Error ? err.message : "Ошибка загрузки",
+        error: err instanceof Error ? err.message : "Error loading posts",
         isLoading: false,
       });
     }
@@ -42,7 +42,7 @@ export const usePost = create<Store>()((set) => ({
 
       set((state) => ({ posts: [response.data, ...state.posts] }));
     } catch (err) {
-      console.error("Ошибка при создании поста:", err);
+      console.error("Error creating post:", err);
     }
   },
 
@@ -78,7 +78,6 @@ export const usePost = create<Store>()((set) => ({
         ),
       }));
     } catch (err) {
-      // Откатываем оптимистичное обновление, если запрос не удался
       set((state) => ({
         posts: state.posts.map((post) =>
           post.id === id ? toggleLikeLocally(post) : post,

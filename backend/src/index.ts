@@ -46,8 +46,8 @@ app.get("/posts", async (req: Request, res: Response) => {
 
     res.json(formattedPosts);
   } catch (error) {
-    console.error("Ошибка в GET /posts:", error);
-    res.status(500).json({ error: "Не удалось получить посты" });
+    console.error("Error in в GET /posts:", error);
+    res.status(500).json({ error: "Failed to retrieve posts" });
   }
 });
 
@@ -57,7 +57,7 @@ app.post("/posts", async (req: Request, res: Response) => {
     const { author, userTag, text } = req.body;
 
     if (!text || text.trim() === "") {
-      res.status(400).json({ error: "Текст поста не может быть пустым" });
+      res.status(400).json({ error: "The post text cannot be empty." });
       return;
     }
 
@@ -77,8 +77,8 @@ app.post("/posts", async (req: Request, res: Response) => {
       isLikedByMe: false,
     });
   } catch (error) {
-    console.error("Ошибка при создании поста:", error);
-    res.status(500).json({ error: "Не удалось создать пост" });
+    console.error("Error creating post:", error);
+    res.status(500).json({ error: "Failed to create the post" });
   }
 });
 
@@ -120,12 +120,12 @@ app.post("/posts/:id/like", async (req: Request, res: Response) => {
 
     res.json({ postId, likesCount, isLikedByMe });
   } catch (error) {
-    console.error("Ошибка при лайке:", error);
-    res.status(500).json({ error: "Не удалось обновить лайк" });
+    console.error("Error while liking:", error);
+    res.status(500).json({ error: "Failed to update like" });
   }
 });
 
 // Запуск сервера
 app.listen(PORT, () => {
-  console.log(`🚀 Сервер запущен на http://localhost:${PORT}`);
+  console.log(`🚀 The server is running on http://localhost:${PORT}`);
 });
