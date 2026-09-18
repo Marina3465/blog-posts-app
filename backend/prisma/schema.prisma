@@ -12,10 +12,14 @@ datasource db {
 }
 
 model User {
-  id      Int    @id @default(autoincrement())
-  name    String
-  userTag String @unique
-  likes   Like[]
+  id        Int     @id @default(autoincrement())
+  name      String
+  userTag   String  @unique
+  email     String? @unique
+  password  String? // Опциональный, так как у пользователей Google пароля нет
+  googleId  String? @unique // ID от Google (если вошел через Google)
+  avatar    String?
+  likes     Like[]
 }
 
 model Post {

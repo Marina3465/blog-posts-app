@@ -1,131 +1,57 @@
-import express, { Request, Response } from "express";
+import "dotenv/config";
+import express from "express";
 import cors from "cors";
-import { prisma } from "./db.js";
+import session from "express-session";
+import passport from "passport";
+
+import { setupPassport } from "./config/passport";
+import authRoutes from "./routes/auth";
+import postsRoutes from "./routes/posts";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// ---------- Middleware (всегда до роутов) ----------
+
+// CORS — разрешаем передачу куки с React
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 
-// Вспомогательная функция для получения текущего userId из заголовка (по умолчанию 1)
-const getCurrentUserId = (req: Request): number => {
-  const headerId = req.headers["x-user-id"];
-  return headerId ? Number(headerId) : 1;
-};
+// Сессии
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "super-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // true для HTTPS
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  }),
+);
 
-// 1. ПОЛУЧЕНИЕ ПОСТОВ (GET /posts)
-app.get("/posts", async (req: Request, res: Response) => {
-  try {
-    const currentUserId = getCurrentUserId(req);
+// Инициализируем Passport (setupPassport вызываем один раз, до passport.session)
+setupPassport();
+app.use(passport.initialize());
+app.use(passport.session());
 
-    const posts = await prisma.post.findMany({
-      orderBy: { dateOfCreation: "desc" },
-      include: {
-        likes: true, // Загружаем связанные лайки из таблицы Like
-      },
-    });
+// ---------- Роуты ----------
 
-    // Форматируем ответ с флагами для фронтенда
-    const formattedPosts = posts.map((post) => {
-      const isLikedByMe = post.likes.some(
-        (like) => like.userId === currentUserId,
-      );
-      return {
-        id: post.id,
-        author: post.author,
-        userTag: post.userTag,
-        text: post.text,
-        comments: post.comments,
-        dateOfCreation: post.dateOfCreation,
-        likesCount: post.likes.length,
-        isLikedByMe,
-      };
-    });
+// Все пути из auth.ts автоматически получат префикс /api/auth
+app.use("/api/auth", authRoutes);
 
-    res.json(formattedPosts);
-  } catch (error) {
-    console.error("Error in в GET /posts:", error);
-    res.status(500).json({ error: "Failed to retrieve posts" });
-  }
-});
+// Все пути из posts.ts автоматически получат префикс /posts
+app.use("/posts", postsRoutes);
 
-// 2. СОЗДАНИЕ ПОСТА (POST /posts)
-app.post("/posts", async (req: Request, res: Response) => {
-  try {
-    const { author, userTag, text } = req.body;
+// ---------- Запуск сервера ----------
 
-    if (!text || text.trim() === "") {
-      res.status(400).json({ error: "The post text cannot be empty." });
-      return;
-    }
-
-    const newPost = await prisma.post.create({
-      data: {
-        author: author || "Marina",
-        userTag: userTag || "@marinakv",
-        text,
-        comments: 0,
-      },
-    });
-
-    // Возвращаем пост с начальными полями лайков для фронтенда
-    res.status(201).json({
-      ...newPost,
-      likesCount: 0,
-      isLikedByMe: false,
-    });
-  } catch (error) {
-    console.error("Error creating post:", error);
-    res.status(500).json({ error: "Failed to create the post" });
-  }
-});
-
-// 3. ТУГГЛ ЛАЙКА (POST /posts/:id/like)
-app.post("/posts/:id/like", async (req: Request, res: Response) => {
-  try {
-    const postId = Number(req.params.id);
-    const userId = getCurrentUserId(req);
-
-    // Убедимся, что дефолтный пользователь с id=1 существует в базе
-    await prisma.user.upsert({
-      where: { id: userId },
-      update: {},
-      create: { id: userId, name: "Marina", userTag: "@marinakv" },
-    });
-
-    // Проверяем, стоял ли уже лайк
-    const existingLike = await prisma.like.findUnique({
-      where: {
-        userId_postId: { userId, postId },
-      },
-    });
-
-    if (existingLike) {
-      // Снимаем лайк
-      await prisma.like.delete({
-        where: { id: existingLike.id },
-      });
-    } else {
-      // Ставим лайк
-      await prisma.like.create({
-        data: { userId, postId },
-      });
-    }
-
-    // Считаем актуальное количество и статус
-    const likesCount = await prisma.like.count({ where: { postId } });
-    const isLikedByMe = !existingLike;
-
-    res.json({ postId, likesCount, isLikedByMe });
-  } catch (error) {
-    console.error("Error while liking:", error);
-    res.status(500).json({ error: "Failed to update like" });
-  }
-});
-
-// Запуск сервера
 app.listen(PORT, () => {
   console.log(`🚀 The server is running on http://localhost:${PORT}`);
 });
