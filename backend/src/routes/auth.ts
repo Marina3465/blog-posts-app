@@ -1,19 +1,30 @@
-import { Router } from "express";
+import { Router, type RequestHandler } from "express";
 import passport from "passport";
 import bcrypt from "bcrypt";
 import { prisma } from "../db";
+import { isGoogleAuthEnabled } from "../config/passport";
 
 const router = Router();
+
+// Если ключи Google не заданы — отвечаем понятной ошибкой, а не падаем
+const requireGoogleAuth: RequestHandler = (req, res, next) => {
+  if (!isGoogleAuthEnabled) {
+    return res.status(503).json({ error: "Google sign-in is not configured" });
+  }
+  next();
+};
 
 // 1. Перенаправление в Google
 router.get(
   "/google",
+  requireGoogleAuth,
   passport.authenticate("google", { scope: ["profile", "email"] }),
 );
 
 // 2. Callback от Google
 router.get(
   "/google/callback",
+  requireGoogleAuth,
   passport.authenticate("google", {
     failureRedirect: `${process.env.CLIENT_URL || "http://localhost:3000"}/login`,
   }),
