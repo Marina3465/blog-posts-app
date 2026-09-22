@@ -1,7 +1,7 @@
 export type User = {
   id: number;
   name: string;
-  tagName: string;
+  userTag: string;
   email: string | null;
   avatar: string | null;
 };

@@ -1,35 +1,32 @@
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import ListOfPosts from "./pages/list-of-posts/ListOfPosts";
+import { ErrorPage } from "./pages/protective/ErrorPage";
+import { useUser } from "./entities/user/useUser";
 import { useEffect } from "react";
-import { usePost } from "./entities/post/usePost";
-import { CreatePost } from "./features/create-post/CreatePost";
-import { PostCard } from "./features/post/PostCard";
-import { Header } from "./Header";
-import { type Post } from "./shared/types";
+import { ProtectivePage } from "./pages/protective/ProtectivePage";
+import { HomeRedirect } from "./pages/protective/HomeRedirect";
 
 export default function App() {
-  const { posts, isLoading, error, getPosts, createPost } = usePost();
+  const { fetchMe, user, isAuthChecked } = useUser();
 
   useEffect(() => {
-    getPosts();
-  }, [getPosts]);
-
-  if (isLoading) return <div>Загрузка постов...</div>;
-  if (error) return <div>Ошибка: {error}</div>;
+    fetchMe();
+  }, []);
 
   return (
-    <>
-      <Header />
-      <main className="p-10 lg:px-60">
-        <CreatePost createPost={createPost} />
-        <div className="grid gap-4">
-          {posts.map((post: Post) => (
-            <div key={post.id} className="grid animate-post-appear">
-              <div className="overflow-hidden">
-                <PostCard post={post} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </main>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<></>} />
+
+        <Route
+          element={<ProtectivePage user={user} isAuthChecked={isAuthChecked} />}
+        >
+          <Route index element={<HomeRedirect user={user} />} />
+          <Route path="/posts/:tag" element={<ListOfPosts />} />
+        </Route>
+
+        <Route path="*" element={<ErrorPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

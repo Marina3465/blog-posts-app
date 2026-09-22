@@ -47,8 +47,8 @@ app.use(passport.session());
 // Все пути из auth.ts автоматически получат префикс /api/auth
 app.use("/api/auth", authRoutes);
 
-// Все пути из posts.ts автоматически получат префикс /posts
-app.use("/posts", postsRoutes);
+// Все пути из posts.ts автоматически получат префикс /api/posts
+app.use("/api/posts", postsRoutes);
 
 // ---------- Запуск сервера ----------
 

@@ -5,24 +5,31 @@ import { create } from "zustand";
 type Store = {
   user: User | null;
   isLoading: boolean;
+  isAuthChecked: boolean;
   error: string | null;
+  fetchMe: () => Promise<void>;
+  logIn: ({ login, password }: UserLogIn) => Promise<void>;
+  register: (params: UserRegistration) => Promise<void>;
+  logOut: () => Promise<void>;
 };
 
 export const useUser = create<Store>()((set) => ({
   user: null,
   isLoading: false,
+  isAuthChecked: false,
   error: null,
 
   fetchMe: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await coreInstance.get<User>("/auth/me");
+      const response = await coreInstance.get<User | null>("/auth/me");
 
-      set({ user: response.data, isLoading: false });
+      set({ user: response.data, isLoading: false, isAuthChecked: true });
     } catch (err) {
       set({
         error: err instanceof Error ? err.message : "Error loading posts",
         isLoading: false,
+        isAuthChecked: true,
       });
     }
   },
@@ -68,7 +75,7 @@ export const useUser = create<Store>()((set) => ({
     }
   },
 
-  logout: async () => {
+  logOut: async () => {
     set({ isLoading: true, error: null });
     try {
       await coreInstance.get<User>("/auth/me");
