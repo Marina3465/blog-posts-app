@@ -2,6 +2,16 @@
 
 @theme {
   --animate-post-appear: post-appear 400ms ease-out both;
+  --animate-bg-drift: bg-drift 60s linear infinite;
+
+  @keyframes bg-drift {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: 450px -490px;
+    }
+  }
 
   @keyframes post-appear {
     from {
