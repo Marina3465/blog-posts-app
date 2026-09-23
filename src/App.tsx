@@ -5,6 +5,7 @@ import { useUser } from "./entities/user/useUser";
 import { useEffect } from "react";
 import { ProtectivePage } from "./pages/protective/ProtectivePage";
 import { HomeRedirect } from "./pages/protective/HomeRedirect";
+import { Login } from "./pages/login/Login";
 
 export default function App() {
   const { fetchMe, user, isAuthChecked } = useUser();
@@ -16,7 +17,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<></>} />
+        <Route path="/login" element={<Login />} />
 
         <Route
           element={<ProtectivePage user={user} isAuthChecked={isAuthChecked} />}
