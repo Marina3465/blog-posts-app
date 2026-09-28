@@ -29,11 +29,15 @@ router.get(
     failureRedirect: `${process.env.CLIENT_URL || "http://localhost:3000"}/login`,
   }),
   (req, res) => {
-    res.redirect(
-      `${process.env.CLIENT_URL || "http://localhost:3000"}/dashboard`,
-    );
+    // Возвращаем на корень: дальше роутер сам отправит на страницу пользователя
+    res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000"}/`);
   },
 );
+
+// 2.1 Доступен ли вход через Google — чтобы фронт не показывал нерабочую кнопку
+router.get("/providers", (req, res) => {
+  res.json({ google: isGoogleAuthEnabled });
+});
 
 // 3. Регистрация по логину/паролю
 router.post("/register", async (req, res) => {

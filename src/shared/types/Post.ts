@@ -11,8 +11,5 @@ export type Post = {
 };
 
 export type CreatePostParams = {
-  author: string;
-  userTag: string;
   text: string;
-  dateOfCreation: string;
 };

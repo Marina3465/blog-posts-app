@@ -1,4 +1,5 @@
-import { coreInstance } from "@/shared/api";
+import axios from "axios";
+import { coreInstance, getErrorMessage } from "@/shared/api";
 import { User, UserLogIn, UserRegistration } from "@/shared/types";
 import { create } from "zustand";
 
@@ -8,9 +9,10 @@ type Store = {
   isAuthChecked: boolean;
   error: string | null;
   fetchMe: () => Promise<void>;
-  logIn: ({ login, password }: UserLogIn) => Promise<void>;
+  logIn: (params: UserLogIn) => Promise<void>;
   register: (params: UserRegistration) => Promise<void>;
   logOut: () => Promise<void>;
+  clearError: () => void;
 };
 
 export const useUser = create<Store>()((set) => ({
@@ -22,12 +24,19 @@ export const useUser = create<Store>()((set) => ({
   fetchMe: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await coreInstance.get<User | null>("/auth/me");
+      const response = await coreInstance.get<User>("/auth/me");
 
       set({ user: response.data, isLoading: false, isAuthChecked: true });
     } catch (err) {
+      // 401 — это не ошибка, а ответ "вы гость"
+      const isUnauthorized =
+        axios.isAxiosError(err) && err.response?.status === 401;
+
       set({
-        error: err instanceof Error ? err.message : "Error loading posts",
+        user: null,
+        error: isUnauthorized
+          ? null
+          : getErrorMessage(err, "Server unavailable"),
         isLoading: false,
         isAuthChecked: true,
       });
@@ -35,41 +44,31 @@ export const useUser = create<Store>()((set) => ({
   },
 
   logIn: async ({ login, password }: UserLogIn) => {
-    if (!login.trim() || !password.trim()) return;
-
+    set({ isLoading: true, error: null });
     try {
       const response = await coreInstance.post<User>("/auth/login", {
         login,
         password,
       });
 
-      set({ user: response.data, isLoading: false });
+      set({ user: response.data, isLoading: false, isAuthChecked: true });
     } catch (err) {
       set({
-        error: err instanceof Error ? err.message : "Error log in",
+        error: getErrorMessage(err, "Failed to sign in"),
         isLoading: false,
       });
     }
   },
 
   register: async (params: UserRegistration) => {
-    if (
-      !params.name.trim() ||
-      !params.userTag.trim() ||
-      !params.email.trim() ||
-      !params.password.trim()
-    )
-      return;
-
+    set({ isLoading: true, error: null });
     try {
-      const response = await coreInstance.post<User>("/auth/login", {
-        params,
-      });
+      const response = await coreInstance.post<User>("/auth/register", params);
 
-      set({ user: response.data, isLoading: false });
+      set({ user: response.data, isLoading: false, isAuthChecked: true });
     } catch (err) {
       set({
-        error: err instanceof Error ? err.message : "Error log in",
+        error: getErrorMessage(err, "Failed to register"),
         isLoading: false,
       });
     }
@@ -78,14 +77,16 @@ export const useUser = create<Store>()((set) => ({
   logOut: async () => {
     set({ isLoading: true, error: null });
     try {
-      await coreInstance.get<User>("/auth/me");
+      await coreInstance.get("/auth/logout");
 
       set({ user: null, isLoading: false });
     } catch (err) {
       set({
-        error: err instanceof Error ? err.message : "Error loading posts",
+        error: getErrorMessage(err, "Failed to sign out"),
         isLoading: false,
       });
     }
   },
+
+  clearError: () => set({ error: null }),
 }));

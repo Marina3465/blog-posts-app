@@ -36,12 +36,7 @@ export const CreatePost = ({ createPost }: Props) => {
   };
 
   const handleSubmit = () => {
-    createPost({
-      author: "Marina",
-      userTag: "@marinakv",
-      text: postText,
-      dateOfCreation: String(new Date()),
-    });
+    createPost({ text: postText });
 
     handleCloseForm();
   };

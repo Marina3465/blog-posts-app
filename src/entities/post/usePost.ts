@@ -35,8 +35,6 @@ export const usePost = create<Store>()((set) => ({
 
     try {
       const response = await coreInstance.post<Post>("/posts", {
-        author: postData.author || "Marina",
-        userTag: postData.userTag || "@marinakv",
         text: postData.text,
       });
 

@@ -1,13 +1,11 @@
 import axios from "axios";
 
-const CURRENT_USER_ID = "1";
-
 export const coreInstance = axios.create({
+  // Запросы идут на тот же origin, dev-сервер проксирует /api на бэкенд
   baseURL: "/api",
-  withCredentials: true,
+  withCredentials: true, // отправляем cookie сессии
 
   headers: {
     "Content-Type": "application/json",
-    "x-user-id": CURRENT_USER_ID,
   },
 });

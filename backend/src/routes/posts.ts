@@ -1,18 +1,14 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../db";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
-
-// Вспомогательная функция для получения текущего userId из заголовка (по умолчанию 1)
-const getCurrentUserId = (req: Request): number => {
-  const headerId = req.headers["x-user-id"];
-  return headerId ? Number(headerId) : 1;
-};
 
 // 1. ПОЛУЧЕНИЕ ПОСТОВ (GET /posts)
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const currentUserId = getCurrentUserId(req);
+    // Ленту может читать и гость — у него просто нет своих лайков
+    const currentUserId = req.user?.id;
 
     const posts = await prisma.post.findMany({
       orderBy: { dateOfCreation: "desc" },
@@ -23,9 +19,10 @@ router.get("/", async (req: Request, res: Response) => {
 
     // Форматируем ответ с флагами для фронтенда
     const formattedPosts = posts.map((post) => {
-      const isLikedByMe = post.likes.some(
-        (like) => like.userId === currentUserId,
-      );
+      const isLikedByMe = currentUserId
+        ? post.likes.some((like) => like.userId === currentUserId)
+        : false;
+
       return {
         id: post.id,
         author: post.author,
@@ -46,19 +43,23 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 // 2. СОЗДАНИЕ ПОСТА (POST /posts)
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", requireAuth, async (req: Request, res: Response) => {
   try {
-    const { author, userTag, text } = req.body;
+    const { text } = req.body;
 
     if (!text || text.trim() === "") {
       res.status(400).json({ error: "The post text cannot be empty." });
       return;
     }
 
+    // Автора берем из сессии, а не из тела запроса:
+    // клиент не должен сообщать, кто он
+    const author = req.user!;
+
     const newPost = await prisma.post.create({
       data: {
-        author: author || "Marina",
-        userTag: userTag || "@marinakv",
+        author: author.name,
+        userTag: author.userTag,
         text,
         comments: 0,
       },
@@ -77,17 +78,15 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 // 3. ТУГГЛ ЛАЙКА (POST /posts/:id/like)
-router.post("/:id/like", async (req: Request, res: Response) => {
+router.post("/:id/like", requireAuth, async (req: Request, res: Response) => {
   try {
     const postId = Number(req.params.id);
-    const userId = getCurrentUserId(req);
+    const userId = req.user!.id;
 
-    // Убедимся, что дефолтный пользователь с id=1 существует в базе
-    await prisma.user.upsert({
-      where: { id: userId },
-      update: {},
-      create: { id: userId, name: "Marina", userTag: "@marinakv" },
-    });
+    if (Number.isNaN(postId)) {
+      res.status(400).json({ error: "Invalid post id" });
+      return;
+    }
 
     // Проверяем, стоял ли уже лайк
     const existingLike = await prisma.like.findUnique({

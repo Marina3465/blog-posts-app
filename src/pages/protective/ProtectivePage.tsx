@@ -7,8 +7,16 @@ type Props = {
 };
 
 export const ProtectivePage = ({ user, isAuthChecked }: Props) => {
-  if (user === null && isAuthChecked) {
-    return <Navigate to="login" />;
+  if (!isAuthChecked) {
+    return (
+      <div className="h-dvh flex justify-center items-center text-[#767676]">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

@@ -3,3 +3,4 @@ export { HeartIcon } from "./HeastIcon";
 export { ShareIcon } from "./ShareIcon";
 export { Verification } from "./Verification";
 export { Error404 } from "./Error404";
+export { GoogleIcon } from "./GoogleIcon";
