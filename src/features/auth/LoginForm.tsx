@@ -2,12 +2,15 @@ import { SubmitEvent, useState } from "react";
 import { useUser } from "@/entities/user/useUser";
 import { Input } from "@/shared/ui/Input";
 import { Button } from "@/shared/ui/Button";
+import { IconButton } from "@/shared/ui/IconButton";
+import { EyeIcon, EyeSlashIcon } from "@/shared/icons";
 
 export const LoginForm = () => {
   const { logIn, isLoading, error } = useUser();
 
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [isShowPassword, setIsShowPassword] = useState(false);
 
   const isReady = login.trim() !== "" && password !== "";
 
@@ -27,14 +30,23 @@ export const LoginForm = () => {
         autoComplete="username"
         disabled={isLoading}
       />
-      <Input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-        autoComplete="current-password"
-        disabled={isLoading}
-      />
+
+      <div className="relative flex items-center">
+        <Input
+          type={isShowPassword ? "text" : "password"}
+          placeholder="Password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          autoComplete="current-password"
+          disabled={isLoading}
+          className="pr-9"
+        />
+        <IconButton
+          className="absolute right-0 left-auto text-gray-600"
+          icon={isShowPassword ? <EyeSlashIcon /> : <EyeIcon />}
+          onClick={() => setIsShowPassword((prev) => !prev)}
+        />
+      </div>
 
       {error && <p className="w-80 text-sm text-rose-600">{error}</p>}
 

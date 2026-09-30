@@ -1,3 +1,5 @@
+export { EyeIcon } from "./EyeIcon";
+export { EyeSlashIcon } from "./EyeSlashIcon";
 export { CommentIcon } from "./CommentIcon";
 export { HeartIcon } from "./HeastIcon";
 export { ShareIcon } from "./ShareIcon";

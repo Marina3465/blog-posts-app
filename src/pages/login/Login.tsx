@@ -11,8 +11,6 @@ export const Login = () => {
   const { isGoogleEnabled } = useAuthProviders();
   const [isRegistering, setIsRegistering] = useState(false);
 
-  // Пока не знаем, залогинен ли пользователь, форму не показываем —
-  // иначе она мигнет перед редиректом на ленту
   if (!isAuthChecked) return null;
 
   if (user) return <Navigate to="/" replace />;
