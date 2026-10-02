@@ -1,4 +1,4 @@
-import { coreInstance } from "@/shared/api";
+import { coreInstance, getErrorMessage } from "@/shared/api";
 import { CreatePostParams, Post } from "@/shared/types";
 import { create } from "zustand";
 
@@ -9,9 +9,10 @@ type Store = {
   getPosts: () => Promise<void>;
   createPost: (newPost: CreatePostParams) => Promise<void>;
   toggleLike: (id: number) => Promise<void>;
+  deletePost: (id: number) => Promise<void>;
 };
 
-export const usePost = create<Store>()((set) => ({
+export const usePost = create<Store>()((set, get) => ({
   posts: [],
   isLoading: false,
   error: null,
@@ -41,6 +42,24 @@ export const usePost = create<Store>()((set) => ({
       set((state) => ({ posts: [response.data, ...state.posts] }));
     } catch (err) {
       console.error("Error creating post:", err);
+    }
+  },
+
+  deletePost: async (id: number) => {
+    // Убираем из списка сразу, но помним прежний порядок:
+    // если сервер откажет, вернем пост на место
+    const previousPosts = get().posts;
+
+    set((state) => ({ posts: state.posts.filter((post) => post.id !== id) }));
+
+    try {
+      await coreInstance.delete(`/posts/${id}`);
+    } catch (err) {
+      set({
+        posts: previousPosts,
+        error: getErrorMessage(err, "Failed to delete the post"),
+      });
+      throw err;
     }
   },
 

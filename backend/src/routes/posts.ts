@@ -32,6 +32,8 @@ router.get("/", async (req: Request, res: Response) => {
         dateOfCreation: post.dateOfCreation,
         likesCount: post.likes.length,
         isLikedByMe,
+        // Свой пост можно удалить — кнопку показываем только автору
+        isMine: currentUserId !== undefined && post.authorId === currentUserId,
       };
     });
 
@@ -60,6 +62,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
       data: {
         author: author.name,
         userTag: author.userTag,
+        authorId: author.id,
         text,
         comments: 0,
       },
@@ -70,6 +73,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
       ...newPost,
       likesCount: 0,
       isLikedByMe: false,
+      isMine: true,
     });
   } catch (error) {
     console.error("Error creating post:", error);
@@ -115,6 +119,40 @@ router.post("/:id/like", requireAuth, async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error while liking:", error);
     res.status(500).json({ error: "Failed to update like" });
+  }
+});
+
+// 4. УДАЛЕНИЕ ПОСТА (DELETE /posts/:id)
+router.delete("/:id", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const postId = Number(req.params.id);
+
+    if (Number.isNaN(postId)) {
+      res.status(400).json({ error: "Invalid post id" });
+      return;
+    }
+
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+
+    if (!post) {
+      res.status(404).json({ error: "Post not found" });
+      return;
+    }
+
+    // Удалять может только автор. У постов, созданных до авторизации,
+    // authorId пустой — такие не удаляет никто
+    if (post.authorId !== req.user!.id) {
+      res.status(403).json({ error: "You can delete only your own posts" });
+      return;
+    }
+
+    // Лайки уйдут сами: в схеме у Like стоит onDelete: Cascade
+    await prisma.post.delete({ where: { id: postId } });
+
+    res.json({ id: postId });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ error: "Failed to delete the post" });
   }
 });
 

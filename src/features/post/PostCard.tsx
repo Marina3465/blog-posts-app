@@ -1,4 +1,6 @@
 import { Post } from "@/shared/types";
+import { usePost } from "@/entities/post/usePost";
+import { DeletePostButton } from "./ui/DeletePostButton";
 import { PostFooter } from "./ui/PostFooter";
 import { PostHeader } from "./ui/PostHeader";
 
@@ -16,16 +18,31 @@ export const PostCard = ({ post }: Props) => {
     dateOfCreation,
     isLikedByMe,
     likesCount,
+    isMine,
   } = post;
+
+  const deletePost = usePost((state) => state.deletePost);
+
+  const handleDelete = () => {
+    deletePost(id).catch((error) => {
+      console.error("Ошибка при удалении поста:", error);
+    });
+  };
 
   return (
     <div className="bg-white rounded-3xl border border-gray-200 shadow-xs p-6.5 pl-6 pb-2.5">
-      <PostHeader
-        author={author}
-        userTag={userTag}
-        dateOfCreation={dateOfCreation}
-      />
+      <div className="flex justify-between items-start">
+        <PostHeader
+          author={author}
+          userTag={userTag}
+          dateOfCreation={dateOfCreation}
+        />
+
+        {isMine && <DeletePostButton onDelete={handleDelete} />}
+      </div>
+
       <div className="text-base/relaxed my-2">{text}</div>
+
       <PostFooter
         postId={id}
         isLikedByMe={isLikedByMe}

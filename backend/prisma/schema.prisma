@@ -20,15 +20,18 @@ model User {
   googleId  String? @unique // ID от Google (если вошел через Google)
   avatar    String?
   likes     Like[]
+  posts     Post[]
 }
 
 model Post {
   id             Int      @id @default(autoincrement())
-  author         String
-  userTag        String
+  author         String // денормализация: имя автора на момент публикации
+  userTag        String // то же для тега
   text           String
   comments       Int      @default(0)
   dateOfCreation DateTime @default(now())
+  authorId       Int? // связь с автором; null у постов, созданных до авторизации
+  authorUser     User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes          Like[]
 }
 

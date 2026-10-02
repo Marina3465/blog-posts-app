@@ -8,6 +8,7 @@ export type Post = {
   dateOfCreation: string;
   likesCount: number;
   isLikedByMe: boolean;
+  isMine: boolean;
 };
 
 export type CreatePostParams = {
