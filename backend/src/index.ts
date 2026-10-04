@@ -7,6 +7,7 @@ import passport from "passport";
 import { setupPassport } from "./config/passport";
 import authRoutes from "./routes/auth";
 import postsRoutes from "./routes/posts";
+import path from "path";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -49,6 +50,7 @@ app.use("/api/auth", authRoutes);
 
 // Все пути из posts.ts автоматически получат префикс /api/posts
 app.use("/api/posts", postsRoutes);
+app.use("/api/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
 // ---------- Запуск сервера ----------
 

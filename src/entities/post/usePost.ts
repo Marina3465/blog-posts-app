@@ -35,9 +35,11 @@ export const usePost = create<Store>()((set, get) => ({
     if (!postData.text.trim()) return;
 
     try {
-      const response = await coreInstance.post<Post>("/posts", {
-        text: postData.text,
-      });
+      const formData = new FormData();
+      formData.append("text", postData.text);
+      postData.files.forEach((file) => formData.append("files", file));
+
+      const response = await coreInstance.post<Post>("/posts", formData);
 
       set((state) => ({ posts: [response.data, ...state.posts] }));
     } catch (err) {

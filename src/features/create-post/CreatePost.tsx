@@ -6,6 +6,7 @@ import { PaperClipIcon } from "@/shared/icons/PaperClipIcon";
 import { ArrowUpIcon } from "@/shared/icons/ArrowUpIcon";
 import { CrossIcon } from "@/shared/icons/CrossIcon";
 import { CreatePostParams } from "@/shared/types";
+import { FilePreview } from "./ui/FilePreview";
 
 type Props = {
   createPost: (newPost: CreatePostParams) => void;
@@ -14,6 +15,8 @@ type Props = {
 export const CreatePost = ({ createPost }: Props) => {
   const [isOpenCreateForm, setIsOpenCreateForm] = useState(false);
   const [postText, setPostText] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenForm = () => {
     setIsOpenCreateForm(true);
@@ -36,9 +39,17 @@ export const CreatePost = ({ createPost }: Props) => {
   };
 
   const handleSubmit = () => {
-    createPost({ text: postText });
+    createPost({ text: postText, files });
 
     handleCloseForm();
+  };
+
+  const handleFilesChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files ?? []);
+
+    setFiles((prev) => [...prev, ...selected].slice(0, 5));
+
+    e.target.value = "";
   };
 
   return (
@@ -82,10 +93,33 @@ export const CreatePost = ({ createPost }: Props) => {
               onChange={handleInput}
               rows={1}
             />
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              hidden
+              accept="image/*,video/*,application/pdf"
+              onChange={handleFilesChange}
+            />
+            {files.length > 0 && (
+              <div className="flex flex-wrap gap-2 px-4.5 pb-3">
+                {files.map((file, index) => (
+                  <FilePreview
+                    key={index}
+                    file={file}
+                    onRemove={() =>
+                      setFiles((prev) => prev.filter((_, i) => i !== index))
+                    }
+                  />
+                ))}
+              </div>
+            )}
+
             <div className="flex justify-between bg-gray-50 py-3 px-4.5 border-t border-gray-200 rounded-b-3xl">
               <IconButton
                 icon={<PaperClipIcon className="size-4" />}
                 className="border border-gray-300 px-3 font-semibold transition-all duration-300 hover:bg-white hover:shadow-md"
+                onClick={() => fileInputRef.current?.click()}
               >
                 Attach a file
               </IconButton>

@@ -33,6 +33,7 @@ model Post {
   authorId       Int? // связь с автором; null у постов, созданных до авторизации
   authorUser     User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes          Like[]
+  attachments    Attachment[]
 }
 
 model Like {
@@ -43,4 +44,14 @@ model Like {
   post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId]) // Один пользователь может лайкнуть пост только 1 раз
+}
+
+model Attachment {
+  id           Int    @id @default(autoincrement())
+  postId       Int
+  filename     String // имя файла на диске (uuid + расширение)
+  originalName String // как файл назывался у пользователя
+  mimeType     String
+  size         Int    // в байтах
+  post         Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 }

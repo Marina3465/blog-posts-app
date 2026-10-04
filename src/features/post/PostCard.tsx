@@ -3,6 +3,7 @@ import { usePost } from "@/entities/post/usePost";
 import { DeletePostButton } from "./ui/DeletePostButton";
 import { PostFooter } from "./ui/PostFooter";
 import { PostHeader } from "./ui/PostHeader";
+import { PostAttachments } from "./ui/PostAttachments";
 
 type Props = {
   post: Post;
@@ -19,6 +20,7 @@ export const PostCard = ({ post }: Props) => {
     isLikedByMe,
     likesCount,
     isMine,
+    attachments,
   } = post;
 
   const deletePost = usePost((state) => state.deletePost);
@@ -42,6 +44,8 @@ export const PostCard = ({ post }: Props) => {
       </div>
 
       <div className="text-base/relaxed my-2">{text}</div>
+
+      <PostAttachments attachments={attachments} />
 
       <PostFooter
         postId={id}

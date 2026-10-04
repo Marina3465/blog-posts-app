@@ -1,6 +1,26 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../db";
 import { requireAuth } from "../middleware/requireAuth";
+import { upload } from "../middleware/upload";
+
+const toAttachmentDto = (att: {
+  id: number;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+}) => ({
+  id: att.id,
+  url: `/api/uploads/${att.filename}`,
+  originalName: att.originalName,
+  mimeType: att.mimeType,
+  size: att.size,
+});
+
+// multer отдает имя файла в latin1, и кириллица превращается в «Ð¿Ñ...».
+// Перекодируем байты обратно в utf8
+const decodeFileName = (name: string) =>
+  Buffer.from(name, "latin1").toString("utf8");
 
 const router = Router();
 
@@ -13,7 +33,8 @@ router.get("/", async (req: Request, res: Response) => {
     const posts = await prisma.post.findMany({
       orderBy: { dateOfCreation: "desc" },
       include: {
-        likes: true, // Загружаем связанные лайки из таблицы Like
+        likes: true,
+        attachments: true, // <- добавить
       },
     });
 
@@ -34,6 +55,7 @@ router.get("/", async (req: Request, res: Response) => {
         isLikedByMe,
         // Свой пост можно удалить — кнопку показываем только автору
         isMine: currentUserId !== undefined && post.authorId === currentUserId,
+        attachments: post.attachments.map(toAttachmentDto),
       };
     });
 
@@ -45,41 +67,60 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 // 2. СОЗДАНИЕ ПОСТА (POST /posts)
-router.post("/", requireAuth, async (req: Request, res: Response) => {
-  try {
-    const { text } = req.body;
+router.post(
+  "/",
+  requireAuth,
+  upload.array("files", 5),
+  async (req: Request, res: Response) => {
+    try {
+      console.log(req.body, req.files);
 
-    if (!text || text.trim() === "") {
-      res.status(400).json({ error: "The post text cannot be empty." });
-      return;
+      const { text } = req.body;
+
+      if (!text || text.trim() === "") {
+        res.status(400).json({ error: "The post text cannot be empty." });
+        return;
+      }
+
+      const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+
+      // Автора берем из сессии, а не из тела запроса:
+      // клиент не должен сообщать, кто он
+      const author = req.user!;
+
+      const newPost = await prisma.post.create({
+        data: {
+          author: author.name,
+          userTag: author.userTag,
+          authorId: author.id,
+          text,
+          comments: 0,
+          attachments: {
+            create: files.map((file) => ({
+              filename: file.filename,
+              originalName: decodeFileName(file.originalname),
+              mimeType: file.mimetype,
+              size: file.size,
+            })),
+          },
+        },
+        include: { attachments: true },
+      });
+
+      // Возвращаем пост с начальными полями лайков для фронтенда
+      res.status(201).json({
+        ...newPost,
+        attachments: newPost.attachments.map(toAttachmentDto), // <- добавить
+        likesCount: 0,
+        isLikedByMe: false,
+        isMine: true,
+      });
+    } catch (error) {
+      console.error("Error creating post:", error);
+      res.status(500).json({ error: "Failed to create the post" });
     }
-
-    // Автора берем из сессии, а не из тела запроса:
-    // клиент не должен сообщать, кто он
-    const author = req.user!;
-
-    const newPost = await prisma.post.create({
-      data: {
-        author: author.name,
-        userTag: author.userTag,
-        authorId: author.id,
-        text,
-        comments: 0,
-      },
-    });
-
-    // Возвращаем пост с начальными полями лайков для фронтенда
-    res.status(201).json({
-      ...newPost,
-      likesCount: 0,
-      isLikedByMe: false,
-      isMine: true,
-    });
-  } catch (error) {
-    console.error("Error creating post:", error);
-    res.status(500).json({ error: "Failed to create the post" });
-  }
-});
+  },
+);
 
 // 3. ТУГГЛ ЛАЙКА (POST /posts/:id/like)
 router.post("/:id/like", requireAuth, async (req: Request, res: Response) => {
