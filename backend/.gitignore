@@ -4,3 +4,7 @@ node_modules
 
 /src/generated/prisma
 uploads/
+
+# Local SQLite databases (contain users and password hashes)
+*.db
+*.db-journal
