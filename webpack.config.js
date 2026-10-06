@@ -6,6 +6,9 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
+    // Абсолютный путь, иначе на вложенных маршрутах (/posts/:tag)
+    // браузер ищет скрипт в /posts/bundle.js и получает index.html
+    publicPath: "/",
     clean: true,
   },
   module: {

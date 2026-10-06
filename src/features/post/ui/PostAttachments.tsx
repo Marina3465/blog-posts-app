@@ -1,33 +1,33 @@
-import { Post } from "@/shared/types";
+import { Attachment } from "@/shared/types";
 import { PaperClipIcon } from "@/shared/icons/PaperClipIcon";
 import { cn } from "@/utils/cn";
 import { formatFileSize } from "@/utils/formatFileSize";
-
-type Attachment = Post["attachments"][number];
+import { useState } from "react";
+import { PlayIcon } from "@/shared/icons";
+import { MediaLightbox } from "./MediaLightbox";
 
 type Props = {
-  attachments: Post["attachments"];
+  attachments: Attachment[];
 };
 
 const isMedia = (file: Attachment) =>
   file.mimeType.startsWith("image/") || file.mimeType.startsWith("video/");
 
 export const PostAttachments = ({ attachments }: Props) => {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   if (attachments.length === 0) return null;
 
-  // Картинки и видео идут сеткой, остальные файлы (pdf и т.д.) — списком ниже
   const media = attachments.filter(isMedia);
   const documents = attachments.filter((file) => !isMedia(file));
 
-  // Одно изображение показываем в натуральных пропорциях,
-  // несколько — ровной сеткой одинаковых плиток
   const isSingle = media.length === 1;
 
   return (
     <div className="flex flex-col gap-2 my-2">
       {media.length > 0 && (
         <div className={cn("grid gap-2", !isSingle && "grid-cols-2")}>
-          {media.map((file) => {
+          {media.map((file, index) => {
             const mediaClassName = cn(
               "rounded-2xl bg-gray-100",
               isSingle
@@ -37,24 +37,35 @@ export const PostAttachments = ({ attachments }: Props) => {
 
             if (file.mimeType.startsWith("video/")) {
               return (
-                <video
+                <button
                   key={file.id}
-                  src={file.url}
-                  controls
-                  preload="metadata"
-                  className={cn(mediaClassName, "bg-black")}
-                />
+                  className="relative block overflow-hidden bg-transparent"
+                  onClick={() => setOpenIndex(index)}
+                >
+                  <video
+                    src={file.url}
+                    preload="metadata"
+                    className={cn(mediaClassName, "bg-black")}
+                  />
+                  <PlayIcon className="absolute top-1/2 left-1/2 size-10 -translate-x-1/2 -translate-y-1/2 text-gray-800 cursor-pointer" />
+                </button>
               );
             }
 
             return (
-              <img
+              <button
                 key={file.id}
-                src={file.url}
-                alt={file.originalName}
-                loading="lazy"
-                className={mediaClassName}
-              />
+                className="relative block overflow-hidden bg-transparent"
+                onClick={() => setOpenIndex(index)}
+              >
+                <img
+                  key={file.id}
+                  src={file.url}
+                  alt={file.originalName}
+                  loading="lazy"
+                  className={mediaClassName}
+                />
+              </button>
             );
           })}
         </div>
@@ -78,6 +89,15 @@ export const PostAttachments = ({ attachments }: Props) => {
           </span>
         </a>
       ))}
+
+      {openIndex !== null && (
+        <MediaLightbox
+          files={media}
+          index={openIndex}
+          onClose={() => setOpenIndex(null)}
+          onIndexChange={setOpenIndex}
+        />
+      )}
     </div>
   );
 };

@@ -1,3 +1,7 @@
+export { PaperClipIcon } from "./PaperClipIcon";
+export { CrossIcon } from "./CrossIcon";
+export { ArrowUpIcon } from "./ArrowUpIcon";
+export { PlayIcon } from "./PlayIcon";
 export { EyeIcon } from "./EyeIcon";
 export { EyeSlashIcon } from "./EyeSlashIcon";
 export { CommentIcon } from "./CommentIcon";

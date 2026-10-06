@@ -9,13 +9,15 @@ export type Post = {
   likesCount: number;
   isLikedByMe: boolean;
   isMine: boolean;
-  attachments: {
-    id: number;
-    url: string;
-    originalName: string;
-    mimeType: string;
-    size: number;
-  }[];
+  attachments: Attachment[];
+};
+
+export type Attachment = {
+  id: number;
+  url: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
 };
 
 export type CreatePostParams = {
