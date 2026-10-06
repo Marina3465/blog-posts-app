@@ -26,11 +26,11 @@ router.get(
   "/google/callback",
   requireGoogleAuth,
   passport.authenticate("google", {
-    failureRedirect: `${process.env.CLIENT_URL || "http://localhost:3000"}/login`,
+    failureRedirect: `${process.env.CLIENT_URL || "http://localhost:3001"}/login`,
   }),
   (req, res) => {
     // Возвращаем на корень: дальше роутер сам отправит на страницу пользователя
-    res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000"}/`);
+    res.redirect(`${process.env.CLIENT_URL || "http://localhost:3001"}/`);
   },
 );
 
