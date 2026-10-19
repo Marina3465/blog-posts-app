@@ -23,7 +23,7 @@ export default function App() {
           element={<ProtectivePage user={user} isAuthChecked={isAuthChecked} />}
         >
           <Route index element={<HomeRedirect user={user} />} />
-          <Route path="/posts/:tag" element={<ListOfPosts />} />
+          <Route path="/posts/:tag" element={<ListOfPosts user={user} />} />
         </Route>
 
         <Route path="*" element={<ErrorPage />} />

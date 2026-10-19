@@ -2,15 +2,24 @@ import { usePost } from "@/entities/post/usePost";
 import { CreatePost } from "@/features/create-post/CreatePost";
 import { PostCard } from "@/features/post/PostCard";
 import { Header } from "@/Header";
-import { Post } from "@/shared/types";
+import { Post, User } from "@/shared/types";
 import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 
-export default function ListOfPosts() {
+type Props = {
+  user: User | null;
+};
+
+export default function ListOfPosts({ user }: Props) {
   const { posts, isLoading, error, getPosts, createPost } = usePost();
 
+  const { tag } = useParams<{ tag: string }>();
+
   useEffect(() => {
-    getPosts();
-  }, [getPosts]);
+    if (tag) {
+      getPosts(tag);
+    }
+  }, [tag, getPosts]);
 
   if (isLoading) return <div>Загрузка постов...</div>;
   if (error) return <div>Ошибка: {error}</div>;
@@ -19,7 +28,7 @@ export default function ListOfPosts() {
     <>
       <Header />
       <main className="p-10 lg:px-60">
-        <CreatePost createPost={createPost} />
+        {tag === user?.userTag && <CreatePost createPost={createPost} />}
         <div className="grid gap-4">
           {posts.map((post: Post) => (
             <div key={post.id} className="grid animate-post-appear">

@@ -6,7 +6,7 @@ type Store = {
   posts: Post[];
   isLoading: boolean;
   error: string | null;
-  getPosts: () => Promise<void>;
+  getPosts: (tag: string) => Promise<void>;
   createPost: (newPost: CreatePostParams) => Promise<void>;
   toggleLike: (id: number) => Promise<void>;
   deletePost: (id: number) => Promise<void>;
@@ -17,10 +17,12 @@ export const usePost = create<Store>()((set, get) => ({
   isLoading: false,
   error: null,
 
-  getPosts: async () => {
+  getPosts: async (userTag: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await coreInstance.get<Post[]>("/posts");
+      const response = await coreInstance.get<Post[]>("/posts", {
+        params: { userTag },
+      });
 
       set({ posts: response.data, isLoading: false });
     } catch (err) {

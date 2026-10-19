@@ -29,12 +29,21 @@ router.get("/", async (req: Request, res: Response) => {
   try {
     // Ленту может читать и гость — у него просто нет своих лайков
     const currentUserId = req.user?.id;
+    const rawTag = req.query.userTag;
+
+    if (typeof rawTag !== "string" || rawTag.trim() === "") {
+      res.status(400).json({ error: "userTag is required" });
+      return;
+    }
+
+    const userTag = rawTag.trim();
 
     const posts = await prisma.post.findMany({
+      where: { userTag: userTag },
       orderBy: { dateOfCreation: "desc" },
       include: {
         likes: true,
-        attachments: true, // <- добавить
+        attachments: true,
       },
     });
 
