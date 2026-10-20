@@ -1,6 +1,7 @@
 import { usePost } from "@/entities/post/usePost";
 import { CreatePost } from "@/features/create-post/CreatePost";
 import { PostCard } from "@/features/post/PostCard";
+import { SearchUsers } from "@/features/search-users/SearchUsers";
 import { Header } from "@/Header";
 import { Post, User } from "@/shared/types";
 import { useEffect } from "react";
@@ -28,6 +29,7 @@ export default function ListOfPosts({ user }: Props) {
     <>
       <Header />
       <main className="p-10 lg:px-60">
+        <SearchUsers />
         {tag === user?.userTag && <CreatePost createPost={createPost} />}
         <div className="grid gap-4">
           {posts.map((post: Post) => (

@@ -1,4 +1,5 @@
 import { useUser } from "./entities/user/useUser";
+import { Avatar } from "./shared/ui/Avatar";
 
 export const Header = () => {
   const { user, logOut, isLoading } = useUser();
@@ -22,17 +23,7 @@ export const Header = () => {
 
       {user && (
         <div className="ml-auto flex items-center gap-3">
-          {user.avatar ? (
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="size-9 rounded-full object-cover"
-            />
-          ) : (
-            <span className="size-9 rounded-full bg-linear-to-br from-(--color-orange) to-(--color-rose) text-white font-semibold flex items-center justify-center">
-              {user.name.slice(0, 1).toUpperCase()}
-            </span>
-          )}
+          <Avatar user={user} />
 
           <span className="grid leading-tight">
             <span className="font-semibold text-sm">{user.name}</span>

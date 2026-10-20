@@ -3,6 +3,7 @@ import passport from "passport";
 import bcrypt from "bcrypt";
 import { prisma } from "../db";
 import { isGoogleAuthEnabled } from "../config/passport";
+import { isValidUserTag, normalizeUserTag } from "../utils/userTag";
 
 const router = Router();
 
@@ -42,7 +43,20 @@ router.get("/providers", (req, res) => {
 // 3. Регистрация по логину/паролю
 router.post("/register", async (req, res) => {
   try {
-    const { name, userTag, email, password } = req.body;
+    const { name, email, password } = req.body;
+
+    if (typeof req.body.userTag !== "string") {
+      return res.status(400).json({ error: "userTag is required" });
+    }
+
+    const userTag = normalizeUserTag(req.body.userTag);
+
+    if (!isValidUserTag(userTag)) {
+      return res.status(400).json({
+        error:
+          "Tag must be 3–30 characters: latin letters, digits and underscore",
+      });
+    }
 
     const existingUser = await prisma.user.findFirst({
       where: {
@@ -79,7 +93,8 @@ router.post("/login", async (req, res) => {
 
     const user = await prisma.user.findFirst({
       where: {
-        OR: [{ userTag: login }, { email: login }],
+        // Тег принимаем и с собачкой, и в любом регистре
+        OR: [{ userTag: normalizeUserTag(String(login)) }, { email: login }],
       },
     });
 
