@@ -5,6 +5,7 @@ export const PlayIcon = ({ className = "size-6", ...props }) => {
       viewBox="0 0 24 24"
       fill="currentColor"
       className={className}
+      {...props}
     >
       <path
         fillRule="evenodd"
